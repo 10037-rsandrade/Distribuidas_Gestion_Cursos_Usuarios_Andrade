@@ -1,0 +1,82 @@
+version: '3.8'
+
+services:
+  # Frontend Next.js
+  frontend:
+    build:
+      context: ./my-app
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    depends_on:
+      - micro-usuarios
+      - micro-cursos
+    networks:
+      - app-network
+
+  # Microservicio de Usuarios
+  micro-usuarios:
+    build:
+      context: ./micro_usuarios
+      dockerfile: Dockerfile
+    ports:
+      - "8004:8004"
+    depends_on:
+      - mysql-usuarios
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-usuarios:3306/sisdb2025
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=123
+    networks:
+      - app-network
+
+  # Base de datos MySQL para Usuarios
+  mysql-usuarios:
+    image: mysql:8.0
+    ports:
+      - "3307:3306"
+    environment:
+      - MYSQL_DATABASE=sisdb2025
+      - MYSQL_ROOT_PASSWORD=123
+    volumes:
+      - mysql-usuarios-data:/var/lib/mysql
+    networks:
+      - app-network
+
+  # Microservicio de Cursos
+  micro-cursos:
+    build:
+      context: ./micro_cursos
+      dockerfile: Dockerfile
+    ports:
+      - "8002:8002"
+    depends_on:
+      - postgres-cursos
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-cursos:5432/sisdb2025
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
+    networks:
+      - app-network
+
+  # Base de datos PostgreSQL para Cursos
+  postgres-cursos:
+    image: postgres:15
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_DB=sisdb2025
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    volumes:
+      - postgres-cursos-data:/var/lib/postgresql/data
+    networks:
+      - app-network
+
+volumes:
+  mysql-usuarios-data:
+  postgres-cursos-data:
+
+networks:
+  app-network:
+    driver: bridge 
