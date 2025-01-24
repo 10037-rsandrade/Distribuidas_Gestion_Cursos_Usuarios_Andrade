@@ -69,6 +69,10 @@
 			<artifactId>postgresql</artifactId>
 			<version>42.7.3</version> <!-- Usa la versión más reciente disponible -->
 		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-actuator</artifactId>
+		</dependency>
 	</dependencies>
 
 	<build>

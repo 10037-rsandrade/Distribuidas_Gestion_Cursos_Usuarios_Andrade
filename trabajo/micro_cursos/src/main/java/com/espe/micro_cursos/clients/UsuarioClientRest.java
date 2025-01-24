@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
 
-@FeignClient(name = "micro-usuarios", url = "localhost:8004/api/usuarios")
+@FeignClient(name = "micro-usuarios", url = "micro-usuarios:8004/api/usuarios")
 public interface UsuarioClientRest {
     @GetMapping("/{id}")
     Usuario findById(@PathVariable Long id);

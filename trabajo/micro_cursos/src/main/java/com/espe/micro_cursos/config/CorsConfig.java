@@ -15,7 +15,8 @@ public class CorsConfig {
         CorsConfiguration config = new CorsConfiguration();
         
         // Permitir solicitudes desde el frontend
-        config.addAllowedOrigin("http://localhost:3000");
+        config.addAllowedOrigin("http://localhost:3000"); // Para desarrollo local
+        config.addAllowedOrigin("http://frontend:3000"); // Para Docker
         
         // Permitir métodos HTTP específicos
         config.addAllowedMethod("*");

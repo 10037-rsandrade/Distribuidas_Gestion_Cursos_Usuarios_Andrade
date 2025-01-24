@@ -9,8 +9,10 @@ services:
     ports:
       - "3000:3000"
     depends_on:
-      - micro-usuarios
-      - micro-cursos
+      micro-usuarios:
+        condition: service_healthy
+      micro-cursos:
+        condition: service_healthy
     networks:
       - app-network
 
@@ -22,13 +24,19 @@ services:
     ports:
       - "8004:8004"
     depends_on:
-      - mysql-usuarios
+      mysql-usuarios:
+        condition: service_healthy
     environment:
       - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-usuarios:3306/sisdb2025
       - SPRING_DATASOURCE_USERNAME=root
       - SPRING_DATASOURCE_PASSWORD=123
     networks:
       - app-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8004/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
 
   # Base de datos MySQL para Usuarios
   mysql-usuarios:
@@ -42,6 +50,11 @@ services:
       - mysql-usuarios-data:/var/lib/mysql
     networks:
       - app-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p123"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   # Microservicio de Cursos
   micro-cursos:
@@ -51,13 +64,19 @@ services:
     ports:
       - "8002:8002"
     depends_on:
-      - postgres-cursos
+      postgres-cursos:
+        condition: service_healthy
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-cursos:5432/sisdb2025
       - SPRING_DATASOURCE_USERNAME=postgres
       - SPRING_DATASOURCE_PASSWORD=postgres
     networks:
       - app-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8002/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
 
   # Base de datos PostgreSQL para Cursos
   postgres-cursos:
@@ -72,6 +91,11 @@ services:
       - postgres-cursos-data:/var/lib/postgresql/data
     networks:
       - app-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
 volumes:
   mysql-usuarios-data:
